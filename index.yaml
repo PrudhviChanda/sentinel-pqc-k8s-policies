@@ -1,0 +1,26 @@
+apiVersion: v1
+entries:
+  sentinel-pqc:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-02-28T22:09:37.900415708Z"
+    description: Cloud-Agnostic Post-Quantum Cryptography (PQC) Admission Control
+      Framework. Enforces NIST FIPS 204/205 and White House NSM-10 compliance across
+      K8s workloads.
+    digest: f9573f84fb54866ed3d6f1c4c999d8cfc3abaa9b7eb11161efb8d2bf780a8df7
+    keywords:
+    - security
+    - admission-controller
+    - kyverno
+    - post-quantum-cryptography
+    - nist
+    - zero-trust
+    maintainers:
+    - email: platform-security@example.com
+      name: Prudhvi Chanda
+    name: sentinel-pqc
+    type: application
+    urls:
+    - https://github.com/PrudhviChanda/sentinel-pqc-k8s-policies/releases/download/sentinel-pqc-1.0.1/sentinel-pqc-1.0.1.tgz
+    version: 1.0.1
+generated: "2026-02-28T22:09:37.900425727Z"
