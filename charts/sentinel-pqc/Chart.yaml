@@ -2,7 +2,7 @@ apiVersion: v2
 name: sentinel-pqc
 description: Cloud-Agnostic Post-Quantum Cryptography (PQC) Admission Control Framework. Enforces NIST FIPS 204/205 and White House NSM-10 compliance across K8s workloads.
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: "1.0.0"
 keywords:
   - security
