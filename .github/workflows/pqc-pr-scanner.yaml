@@ -1,0 +1,26 @@
+name: Sentinel-PQC Shift-Left Scanner
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.yaml'
+      - '**.yml'
+
+jobs:
+  pqc-compliance-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Kyverno CLI
+        uses: kyverno/action-install-cli@v0.2.0
+
+      - name: Run Sentinel-PQC Framework Scan
+        # This applies your exact Helm policies against the developer's raw YAML files
+        run: |
+          echo "Scanning Pull Request for Post-Quantum Cryptography (PQC) Violations..."
+          kyverno apply ./sentinel-pqc-chart/templates/policy-cert-manager.yaml \
+            --resource . \
+            --policy-report

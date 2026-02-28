@@ -1,0 +1,70 @@
+# ==============================================================================
+# Sentinel-PQC Framework: Configuration
+# Enterprise Post-Quantum Cryptography (PQC) Admission & Auditing
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Global Enforcement Mode
+# ------------------------------------------------------------------------------
+# mode: "Audit"   - (Recommended for Day 1) Flags violations in logs/metrics but allows deployment.
+# mode: "Enforce" - Actively blocks API requests for non-compliant cryptographic assets.
+mode: "Audit"
+
+# ------------------------------------------------------------------------------
+# 2. Cryptographic Standards (NIST / CNSA 2.0 Compliance)
+# ------------------------------------------------------------------------------
+cryptoStandards:
+  # The algorithms explicitly permitted by this policy framework.
+  # Includes transition algorithms (ECC) and native PQC algorithms (ML-KEM/Kyber).
+  allowedAlgorithms:
+    - "ECDSA"
+    - "Ed25519"
+    - "ML-KEM"   # FIPS 203 (Kyber)
+    - "ML-DSA"   # FIPS 204 (Dilithium)
+    - "SLH-DSA"  # FIPS 205 (SPHINCS+)
+  
+  # Minimum acceptable key sizes for transition algorithms (e.g., ECDSA P-384 for CNSA 2.0)
+  minEcdsaCurve: 384
+
+# ------------------------------------------------------------------------------
+# 3. Scope & Exemptions (The "Blast Radius" Control)
+# ------------------------------------------------------------------------------
+scope:
+  # Namespaces to completely ignore (e.g., legacy systems, third-party vendor apps)
+  excludeNamespaces:
+    - "kube-system"
+    - "legacy-billing-prod"
+    - "vendor-locked-monitoring"
+  
+  # Optional: If defined, the framework ONLY scans these namespaces. 
+  # Leave empty [] to scan all namespaces (except excluded).
+  includeNamespaces: []
+
+# ------------------------------------------------------------------------------
+# 4. Feature Toggles (What are we scanning?)
+# ------------------------------------------------------------------------------
+features:
+  certManager:
+    enabled: true
+    description: "Scans cert-manager.io/v1 Certificate resources"
+  
+  nativeTlsSecrets:
+    enabled: true
+    description: "Scans kubernetes.io/tls Secrets for hardcoded legacy keys"
+  
+  istioMesh:
+    enabled: false
+    description: "Scans Istio PeerAuthentication for PQC-safe cipher suites"
+
+# ------------------------------------------------------------------------------
+# 5. Observability & Metrics
+# ------------------------------------------------------------------------------
+observability:
+  prometheus:
+    # Deploys a PodMonitor/ServiceMonitor to scrape Kyverno policy violations
+    enabled: true
+    namespace: "monitoring"
+  
+  grafana:
+    # Deploys the Sentinel-PQC Compliance Dashboard as a ConfigMap
+    dashboardsEnabled: true

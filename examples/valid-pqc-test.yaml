@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: valid-pqc-secret
+  namespace: default
+type: kubernetes.io/tls
+data:
+  # This is a dummy base64 string representing a PQC/ML-KEM key format
+  tls.key: "T0wtS0VNLVByaXZhdGUtS2V5LURhdGEtSGVyZQ==" 
+  tls.crt: "Y2VydGlmaWNhdGUtZGF0YQ=="

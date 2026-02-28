@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: shadow-rsa-secret
+  namespace: default
+type: kubernetes.io/tls
+stringData:
+  # This simulates a developer trying to inject an RSA private key 
+  # directly into the cluster as a string.
+  tls.crt: "fake-cert-data"
+  tls.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEpAIBAAKCAQEA75... (fake rsa data)
+    -----END RSA PRIVATE KEY-----

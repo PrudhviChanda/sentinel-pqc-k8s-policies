@@ -1,0 +1,72 @@
+{{- if .Values.features.certManager.enabled }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: sentinel-pqc-enforce-crypto-readiness
+  labels:
+    app.kubernetes.io/name: sentinel-pqc
+    app.kubernetes.io/component: admission-controller
+  annotations:
+    policies.kyverno.io/title: Sentinel-PQC Cryptographic Readiness
+    policies.kyverno.io/category: Software Supply Chain Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Certificate
+    policies.kyverno.io/description: >-
+      In alignment with White House NSM-10 and NIST PQC mandates, 
+      legacy cryptographic algorithms are blocked. 
+spec:
+  # --------------------------------------------------------------------------
+  # 1. Dynamic Mode Injection (Audit vs. Enforce)
+  # --------------------------------------------------------------------------
+  validationFailureAction: {{ .Values.mode | quote }}
+  background: true
+  rules:
+    - name: block-legacy-rsa-certs
+      match:
+        any:
+        - resources:
+            kinds:
+              - cert-manager.io/v1/Certificate
+            # ----------------------------------------------------------------
+            # 2. Dynamic Namespace Scope (Include)
+            # ----------------------------------------------------------------
+            {{- if .Values.scope.includeNamespaces }}
+            namespaces:
+            {{- range .Values.scope.includeNamespaces }}
+              - {{ . | quote }}
+            {{- end }}
+            {{- end }}
+      
+      # ----------------------------------------------------------------------
+      # 3. Dynamic Namespace Scope (Exclude / The Escape Hatch)
+      # ----------------------------------------------------------------------
+      {{- if .Values.scope.excludeNamespaces }}
+      exclude:
+        any:
+        - resources:
+            namespaces:
+            {{- range .Values.scope.excludeNamespaces }}
+              - {{ . | quote }}
+            {{- end }}
+      {{- end }}
+      
+      validate:
+        message: >-
+          [Sentinel-PQC Admission Control] FATAL: The requested algorithm 
+          does not meet NIST Post-Quantum Cryptography transition requirements. 
+          Allowed algorithms: {{ join ", " .Values.cryptoStandards.allowedAlgorithms }}.
+        deny:
+          conditions:
+            any:
+              # --------------------------------------------------------------
+              # 4. Dynamic Algorithm Enforcement (The Core Logic)
+              # --------------------------------------------------------------
+              # If the requested algorithm is NOT in our allowed list, block it.
+              # (Defaults to 'RSA' if the field is missing, ensuring legacy defaults are caught).
+              - key: "{{ `{{ request.object.spec.privateKey.algorithm || 'RSA' }}` }}"
+                operator: AnyNotIn
+                value: 
+                  {{- range .Values.cryptoStandards.allowedAlgorithms }}
+                  - {{ . | quote }}
+                  {{- end }}
+{{- end }}

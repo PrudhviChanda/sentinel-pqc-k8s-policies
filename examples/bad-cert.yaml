@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: legacy-rsa-cert
+  namespace: default
+spec:
+  secretName: legacy-rsa-tls
+  commonName: "legacy.example.com"  # <--- We just added this line
+  issuerRef:
+    name: ca-issuer
+    kind: ClusterIssuer
+  privateKey:
+    algorithm: RSA
+    size: 2048

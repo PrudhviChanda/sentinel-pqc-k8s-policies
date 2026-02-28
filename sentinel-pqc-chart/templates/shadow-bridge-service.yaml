@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kyverno-shadow-metrics
+  namespace: monitoring
+spec:
+  type: ExternalName
+  externalName: kyverno-svc-metrics.kyverno.svc.cluster.local
+  ports:
+  - port: 8000
+    name: metrics

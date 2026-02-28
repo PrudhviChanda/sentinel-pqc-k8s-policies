@@ -1,0 +1,52 @@
+{{- if .Values.observability.grafana.dashboardsEnabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sentinel-pqc-grafana-dashboard
+  namespace: {{ .Values.observability.prometheus.namespace | default "monitoring" | quote }}
+  labels:
+    app.kubernetes.io/name: sentinel-pqc
+    # This label tells the Grafana sidecar to auto-load this dashboard
+    grafana_dashboard: "1" 
+  annotations:
+    policies.kyverno.io/title: "Sentinel-PQC Grafana Dashboard"
+data:
+  sentinel-pqc-compliance.json: |-
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "title": "Sentinel-PQC Cryptographic Compliance",
+      "tags": ["security", "pqc", "nsm-10"],
+      "timezone": "browser",
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Blocked Legacy Crypto Requests (RSA)",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(increase(kyverno_policy_results_total{policy_name=~\"sentinel-pqc.*\", rule_result=\"fail\"}[1h]))",
+              "legendFormat": "Blocked Requests"
+            }
+          ],
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "auto"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+{{- end }}
